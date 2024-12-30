@@ -22,6 +22,12 @@ export default function HomePage() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [maxVideos, setMaxVideos] = useState(50);
+
+  const getSliderBackground = (value: number) => {
+    const percentage = ((value - 50) / (300 - 50)) * 100;
+    return `linear-gradient(to right, #FE4A60 ${percentage}%, #FAFAFA ${percentage}%)`;
+  };
 
   async function fetchVideos(sortMode: "likes" | "ratio") {
     try {
@@ -32,6 +38,7 @@ export default function HomePage() {
       const queryParams = new URLSearchParams({
         channelUrl: channelUrl.trim(),
         sortMode: sortMode === "ratio" ? "ratio" : "likes",
+        maxVideos: maxVideos.toString(),
       });
 
       const res = await fetch(`/api/videos?${queryParams}`);
@@ -94,6 +101,33 @@ export default function HomePage() {
                            relative z-10 focus:outline-none focus:translate-x-0 focus:translate-y-0
                            transition-transform placeholder-gray-400 text-xs md:text-lg"
                 />
+              </div>
+
+              {/* Add slider for max videos */}
+              <div className="w-full mt-3">
+                <label htmlFor="max_videos" className="block text-gray-700 mb-1">
+                  Number of videos to fetch: <span className="font-bold">{maxVideos}</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="range"
+                    id="max_videos"
+                    name="max_videos"
+                    min="50"
+                    max="350"
+                    step="50"
+                    value={maxVideos}
+                    onChange={(e) => setMaxVideos(Number(e.target.value))}
+                    style={{ background: getSliderBackground(maxVideos) }}
+                    className="w-full h-3 appearance-none border-[3px] border-gray-900 rounded-sm 
+                             focus:outline-none
+                             [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-7 
+                             [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:bg-red-500 
+                             [&::-webkit-slider-thumb]:rounded-sm [&::-webkit-slider-thumb]:cursor-pointer 
+                             [&::-webkit-slider-thumb]:border-solid [&::-webkit-slider-thumb]:border-[3px] 
+                             [&::-webkit-slider-thumb]:border-gray-900 [&::-webkit-slider-thumb]:shadow-[2px_2px_0_#000]"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

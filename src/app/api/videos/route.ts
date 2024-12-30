@@ -40,9 +40,18 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const channelUrl = searchParams.get('channelUrl');
     const sortMode = searchParams.get('sortMode');
+    const maxVideos = Number(searchParams.get('maxVideos')) || 50;
 
     if (!channelUrl) {
       return NextResponse.json({ error: 'Missing channelUrl param' }, { status: 400 });
+    }
+
+    // Validate maxVideos
+    if (maxVideos < 50 || maxVideos > 350) {
+      return NextResponse.json(
+        { error: 'maxVideos must be between 50 and 350' },
+        { status: 400 }
+      );
     }
 
     // 2. Extract channelId (or username) from the provided channelUrl
@@ -54,8 +63,8 @@ export async function GET(request: NextRequest) {
     // 3. If it's an @username, we need to resolve it to a channelId
     const channelId = await getChannelId(channelIdOrName);
 
-    // 4. Fetch up to e.g. 50 videos for that channel
-    const videos = await getChannelVideos(channelId);
+    // 4. Fetch videos for that channel
+    const videos = await getChannelVideos(channelId, maxVideos);
 
     // 5. For each video, fetch stats (views & likes)
     const videosWithStats = await Promise.all(
@@ -131,7 +140,7 @@ async function getChannelId(channelIdOrName: string): Promise<string> {
   throw new Error('Could not find channel by username: ' + channelIdOrName);
 }
 
-async function getChannelVideos(channelId: string) {
+async function getChannelVideos(channelId: string, maxVideos: number = 50) {
   let allVideos: YouTubeVideoItem[] = [];
   let nextPageToken: string | undefined = undefined;
   
@@ -147,8 +156,8 @@ async function getChannelVideos(channelId: string) {
     
     console.log(`Fetched ${allVideos.length} videos so far from channel`);
     
-    // Limit to 200 videos to avoid too many API calls
-    if (allVideos.length >= 200) break;
+    // Use the passed maxVideos parameter instead of hardcoded 200
+    if (allVideos.length >= maxVideos) break;
     
   } while (nextPageToken);
 
