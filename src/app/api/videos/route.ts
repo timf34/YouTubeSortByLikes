@@ -22,6 +22,14 @@ interface ApiError extends Error {
 
 export async function GET(request: NextRequest) {
   try {
+    // Check for API key first
+    if (!process.env.YOUTUBE_API_KEY) {
+      return NextResponse.json(
+        { error: 'YouTube API key is not configured' },
+        { status: 500 }
+      );
+    }
+
     // 1. Parse the query parameters from the request URL
     const { searchParams } = new URL(request.url);
     const channelUrl = searchParams.get('channelUrl');
