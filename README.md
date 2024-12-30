@@ -1,7 +1,6 @@
 # YouTubeSortByLikes
 
-Inspo for myself wrt to UI: https://gitingest.com/
-
+_Will fill this out later_
 
 ## TODO:
 
