@@ -25,7 +25,7 @@ export default function HomePage() {
   const [maxVideos, setMaxVideos] = useState(50);
 
   const getSliderBackground = (value: number) => {
-    const percentage = ((value - 50) / (300 - 50)) * 100;
+    const percentage = ((value - 50) / (350 - 50)) * 100;
     return `linear-gradient(to right, #FE4A60 ${percentage}%, #FAFAFA ${percentage}%)`;
   };
 
