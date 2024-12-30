@@ -1,101 +1,112 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState } from 'react';
+
+export default function HomePage() {
+  const [channelUrl, setChannelUrl] = useState('');
+  const [videos, setVideos] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function fetchVideos(sortMode: 'likes' | 'ratio') {
+    try {
+      setLoading(true);
+      setError(null);
+      setVideos([]);
+
+      const queryParams = new URLSearchParams({
+        channelUrl: channelUrl.trim(),
+        sortMode: sortMode === 'ratio' ? 'ratio' : 'likes',
+      });
+
+      const res = await fetch(`/api/videos?${queryParams}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Something went wrong');
+      }
+      setVideos(data.data);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div style={{ margin: '40px auto', maxWidth: 600, textAlign: 'center' }}>
+      <h1>YouTube Video Sorter</h1>
+      <input
+        style={{ width: '100%', padding: 8 }}
+        type="text"
+        placeholder="Paste YouTube Channel URL here"
+        value={channelUrl}
+        onChange={(e) => setChannelUrl(e.target.value)}
+      />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+      <div style={{ marginTop: 20 }}>
+        <button
+          style={{ marginRight: 10, padding: '6px 12px' }}
+          onClick={() => fetchVideos('likes')}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          Sort by Likes
+        </button>
+        <button style={{ padding: '6px 12px' }} onClick={() => fetchVideos('ratio')}>
+          Sort by Like:View Ratio
+        </button>
+      </div>
+
+      {loading && <p>Loading...</p>}
+      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+
+      {videos.length > 0 && (
+        <table
+          style={{
+            width: '100%',
+            borderCollapse: 'collapse',
+            marginTop: 20,
+            textAlign: 'left',
+          }}
         >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          <thead>
+            <tr>
+              <th style={{ borderBottom: '1px solid #ccc' }}>Video Title</th>
+              <th style={{ borderBottom: '1px solid #ccc' }}>Likes</th>
+              <th style={{ borderBottom: '1px solid #ccc' }}>Views</th>
+              <th style={{ borderBottom: '1px solid #ccc' }}>Ratio (%)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {videos.map((v, idx) => {
+              const ratio = v.views === 0 ? 0 : ((v.likes / v.views) * 100).toFixed(2);
+
+              return (
+                <tr key={idx}>
+                  <td style={{ borderBottom: '1px solid #eee', padding: '6px 0' }}>
+                    <a
+                      href={`https://www.youtube.com/watch?v=${v.videoId}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{ color: 'blue', textDecoration: 'underline' }}
+                    >
+                      {v.title}
+                    </a>
+                  </td>
+                  <td style={{ borderBottom: '1px solid #eee', padding: '6px 0' }}>
+                    {v.likes}
+                  </td>
+                  <td style={{ borderBottom: '1px solid #eee', padding: '6px 0' }}>
+                    {v.views}
+                  </td>
+                  <td style={{ borderBottom: '1px solid #eee', padding: '6px 0' }}>
+                    {ratio}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }

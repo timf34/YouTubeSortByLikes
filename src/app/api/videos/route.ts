@@ -1,27 +1,34 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-// import { NextRequest, NextResponse } from 'next/server';
+// src/app/api/videos/route.ts
+import { NextRequest, NextResponse } from 'next/server';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+// We'll keep your helper functions at the bottom (unchanged).
+// The main difference is: we define `export async function GET(...)`
+// instead of `export default function handler(...)`.
+
+export async function GET(request: NextRequest) {
   try {
-    const { channelUrl, sortMode } = req.query;
+    // 1. Parse the query parameters from the request URL
+    const { searchParams } = new URL(request.url);
+    const channelUrl = searchParams.get('channelUrl');
+    const sortMode = searchParams.get('sortMode');
 
-    if (!channelUrl || typeof channelUrl !== 'string') {
-      return res.status(400).json({ error: 'Missing channelUrl param' });
+    if (!channelUrl) {
+      return NextResponse.json({ error: 'Missing channelUrl param' }, { status: 400 });
     }
 
-    // 1. Extract channelId (or username) from the provided channelUrl
+    // 2. Extract channelId (or username) from the provided channelUrl
     const channelIdOrName = extractChannelIdOrName(channelUrl);
     if (!channelIdOrName) {
-      return res.status(400).json({ error: 'Could not parse channel URL' });
+      return NextResponse.json({ error: 'Could not parse channel URL' }, { status: 400 });
     }
 
-    // 2. If it's an @username, we need to resolve it to a channelId:
+    // 3. If it's an @username, we need to resolve it to a channelId
     const channelId = await getChannelId(channelIdOrName);
 
-    // 3. Fetch up to e.g. 50 videos for that channel
+    // 4. Fetch up to e.g. 50 videos for that channel
     const videos = await getChannelVideos(channelId);
 
-    // 4. For each video, fetch stats (views & likes)
+    // 5. For each video, fetch stats (views & likes)
     const videosWithStats = await Promise.all(
       videos.map(async (v) => {
         const stats = await getVideoStats(v.id.videoId);
@@ -34,24 +41,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
     );
 
-    // 5. Sort them
-    let sorted: typeof videosWithStats;
+    // 6. Sort them
+    let sorted;
     if (sortMode === 'ratio') {
+      // sort by like:views ratio
       sorted = videosWithStats.sort((a, b) => b.likes / b.views - a.likes / a.views);
     } else {
       // default to sort by likes
       sorted = videosWithStats.sort((a, b) => b.likes - a.likes);
     }
 
-    res.status(200).json({ data: sorted });
+    // 7. Return the data as JSON
+    return NextResponse.json({ data: sorted }, { status: 200 });
   } catch (err: any) {
     console.error('API Error', err);
-    res.status(500).json({ error: err.message || 'Internal Server Error' });
+    return NextResponse.json(
+      { error: err.message || 'Internal Server Error' },
+      { status: 500 }
+    );
   }
 }
 
 // ----------------------------------------------------------------
-// Now the helper functions (this is minimal; adapt from your extension!)
+// Helper functions (same as your old code)
 // ----------------------------------------------------------------
 
 function extractChannelIdOrName(fullUrl: string): string | null {
@@ -71,13 +83,9 @@ function extractChannelIdOrName(fullUrl: string): string | null {
 }
 
 async function getChannelId(channelIdOrName: string): Promise<string> {
-  // If it's a typical YouTube channelId (starts with UC...), return it
   if (channelIdOrName.startsWith('UC')) {
     return channelIdOrName;
   }
-
-  // Otherwise, we interpret it as a "custom name" or "handle" (i.e. @lexfridman).
-  // We'll do a "search for channel" call to find the real channel ID.
   const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(
     channelIdOrName
   )}&type=channel&maxResults=1&key=${process.env.YOUTUBE_API_KEY}`;
@@ -93,10 +101,7 @@ async function getChannelId(channelIdOrName: string): Promise<string> {
 }
 
 async function getChannelVideos(channelId: string) {
-  // Note: The 'search' endpoint only returns a subset of videos (max 50)
-  // For truly complete data, you’d need to use "playlistItems" from the channel's uploads playlist, etc.
   const url = `https://www.googleapis.com/youtube/v3/search?channelId=${channelId}&part=snippet,id&type=video&maxResults=50&order=date&key=${process.env.YOUTUBE_API_KEY}`;
-
   const resp = await fetch(url);
   const data = await resp.json();
 
