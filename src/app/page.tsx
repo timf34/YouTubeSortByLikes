@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { decodeHtmlEntities } from "@/lib/utils";
 
 export default function HomePage() {
   const [channelUrl, setChannelUrl] = useState("");
@@ -134,7 +135,7 @@ export default function HomePage() {
                           rel="noreferrer"
                           className="text-blue-600 hover:text-blue-800 font-medium hover:underline"
                         >
-                          {v.title}
+                          {decodeHtmlEntities(v.title)}
                         </a>
                       </td>
                       <td className="px-6 py-4 font-mono">{v.likes.toLocaleString()}</td>
