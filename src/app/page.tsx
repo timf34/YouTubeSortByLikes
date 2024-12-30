@@ -92,7 +92,7 @@ export default function HomePage() {
                   onChange={(e) => setChannelUrl(e.target.value)}
                   className="block w-full rounded border-[3px] border-gray-900 px-6 py-4 bg-white text-gray-900
                            relative z-10 focus:outline-none focus:translate-x-0 focus:translate-y-0
-                           transition-transform placeholder-gray-400 text-lg"
+                           transition-transform placeholder-gray-400 text-xs md:text-lg"
                 />
               </div>
 
@@ -103,7 +103,7 @@ export default function HomePage() {
                     onClick={() => fetchVideos("likes")}
                     className="w-full bg-gray-100 text-gray-900 font-medium px-4 py-4 rounded
                              border-[3px] border-gray-900 relative z-10 group-hover:-translate-y-px
-                             group-hover:-translate-x-px transition-transform text-lg"
+                             group-hover:-translate-x-px transition-transform text-sm md:text-lg"
                   >
                     Sort by Likes
                   </button>
@@ -114,7 +114,7 @@ export default function HomePage() {
                     onClick={() => fetchVideos("ratio")}
                     className="w-full bg-red-600 text-white font-medium px-4 py-4 rounded
                              border-[3px] border-gray-900 relative z-10 group-hover:-translate-y-px
-                             group-hover:-translate-x-px transition-transform text-lg"
+                             group-hover:-translate-x-px transition-transform text-sm md:text-lg"
                   >
                     Sort by Like:View Ratio
                   </button>
