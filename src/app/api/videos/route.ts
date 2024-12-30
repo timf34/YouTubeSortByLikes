@@ -15,6 +15,11 @@ interface YouTubeVideoItem {
   };
 }
 
+// Add error type interface
+interface ApiError extends Error {
+  status?: number;
+}
+
 export async function GET(request: NextRequest) {
   try {
     // 1. Parse the query parameters from the request URL
@@ -63,10 +68,11 @@ export async function GET(request: NextRequest) {
 
     // 7. Return the data as JSON
     return NextResponse.json({ data: sorted }, { status: 200 });
-  } catch (err: any) {
-    console.error('API Error', err);
+  } catch (err: unknown) {
+    const error = err as ApiError;
+    console.error('API Error', error);
     return NextResponse.json(
-      { error: err.message || 'Internal Server Error' },
+      { error: error.message || 'Internal Server Error' },
       { status: 500 }
     );
   }
@@ -87,7 +93,8 @@ function extractChannelIdOrName(fullUrl: string): string | null {
     } else {
       return null;
     }
-  } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (_error) {
     return null;
   }
 }

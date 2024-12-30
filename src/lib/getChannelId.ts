@@ -2,7 +2,6 @@
 
 // TODO: improve robustness like we previously did!
 
-
 export function getChannelIdFromUrl(urlString: string): string | null {
 	try {
 	  const url = new URL(urlString);
@@ -22,7 +21,8 @@ export function getChannelIdFromUrl(urlString: string): string | null {
   
 	  // Fallback
 	  return null;
-	} catch (err) {
+	  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+	} catch (_err) {
 	  return null;
 	}
   }
