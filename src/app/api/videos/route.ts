@@ -20,6 +20,12 @@ interface ApiError extends Error {
   status?: number;
 }
 
+// Add this interface near the top with the other interfaces
+interface YouTubeSearchResponse {
+  items?: YouTubeVideoItem[];
+  nextPageToken?: string;
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Check for API key first
@@ -126,13 +132,28 @@ async function getChannelId(channelIdOrName: string): Promise<string> {
 }
 
 async function getChannelVideos(channelId: string) {
-  const url = `https://www.googleapis.com/youtube/v3/search?channelId=${channelId}&part=snippet,id&type=video&maxResults=50&order=date&key=${process.env.YOUTUBE_API_KEY}`;
-  const resp = await fetch(url);
-  const data = await resp.json();
+  let allVideos: YouTubeVideoItem[] = [];
+  let nextPageToken: string | undefined = undefined;
+  
+  do {
+    const url: string = `https://www.googleapis.com/youtube/v3/search?channelId=${channelId}&part=snippet,id&type=video&maxResults=50&order=date&key=${process.env.YOUTUBE_API_KEY}${nextPageToken ? `&pageToken=${nextPageToken}` : ''}`;
+    const resp = await fetch(url);
+    const data: YouTubeSearchResponse = await resp.json();
 
-  if (!data.items) return [];
+    if (!data.items) break;
+    
+    allVideos = [...allVideos, ...data.items];
+    nextPageToken = data.nextPageToken;
+    
+    console.log(`Fetched ${allVideos.length} videos so far from channel`);
+    
+    // Limit to 200 videos to avoid too many API calls
+    if (allVideos.length >= 200) break;
+    
+  } while (nextPageToken);
 
-  return data.items;
+  console.log(`Finished fetching ${allVideos.length} total videos from channel`);
+  return allVideos;
 }
 
 async function getVideoStats(videoId: string) {
