@@ -87,7 +87,7 @@ export default function HomePage() {
                 <div className="w-full h-full rounded bg-gray-900 translate-y-1 translate-x-1 absolute inset-0"></div>
                 <input
                   type="text"
-                  placeholder="e.g. https://www.youtube.com/@DwarkeshPatel"
+                  placeholder="e.g. https://www.youtube.com/@veritasium"
                   value={channelUrl}
                   onChange={(e) => setChannelUrl(e.target.value)}
                   className="block w-full rounded border-[3px] border-gray-900 px-6 py-4 bg-white text-gray-900
