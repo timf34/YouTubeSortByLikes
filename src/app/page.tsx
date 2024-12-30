@@ -145,11 +145,11 @@ export default function HomePage() {
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
                   <thead>
-                    <tr className="border-b-[3px] border-gray-900">
-                      <th className="px-4 py-3 text-left font-bold text-red-500">Video Title</th>
-                      <th className="px-4 py-3 text-left font-bold text-red-500">Likes</th>
-                      <th className="px-4 py-3 text-left font-bold text-red-500">Views</th>
-                      <th className="px-4 py-3 text-left font-bold text-red-500">Ratio (%)</th>
+                    <tr className="border-b-[3px] border-red-600">
+                      <th className="px-4 py-3 text-left font-bold text-gray-900">Video Title</th>
+                      <th className="px-4 py-3 text-left font-bold text-gray-900">Likes</th>
+                      <th className="px-4 py-3 text-left font-bold text-gray-900">Views</th>
+                      <th className="px-4 py-3 text-left font-bold text-gray-900">Ratio (%)</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -170,9 +170,9 @@ export default function HomePage() {
                               {decodeHtmlEntities(v.title)}
                             </a>
                           </td>
-                          <td className="px-4 py-3 font-medium text-red-500">{v.likes.toLocaleString()}</td>
-                          <td className="px-4 py-3 text-gray-600">{v.views.toLocaleString()}</td>
-                          <td className="px-4 py-3 font-medium text-red-500">{ratio}%</td>
+                          <td className="px-4 py-3 font-medium text-gray-900">{v.likes.toLocaleString()}</td>
+                          <td className="px-4 py-3 text-gray-900">{v.views.toLocaleString()}</td>
+                          <td className="px-4 py-3 font-medium text-gray-900">{ratio}%</td>
                         </tr>
                       );
                     })}
@@ -190,7 +190,7 @@ export default function HomePage() {
           <p className="text-gray-400">
             Created by{" "}
             <a
-              className="text-red-600 font-medium hover:text-gray-900 underline underline-offset-2"
+              className="text-[#ef4444] font-medium hover:text-gray-900 underline underline-offset-2"
               href="https://github.com/timf34"
               target="_blank"
               rel="noreferrer"

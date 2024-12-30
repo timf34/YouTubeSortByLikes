@@ -5,4 +5,4 @@ Inspo for myself wrt to UI: https://gitingest.com/
 
 ## TODO:
 
-- [ ] Improve robustness of getChannelID.ts
+- [ ] Add the ability to request more videos to sort through!
