@@ -5,6 +5,16 @@ import { NextRequest, NextResponse } from 'next/server';
 // The main difference is: we define `export async function GET(...)`
 // instead of `export default function handler(...)`.
 
+// Add these interfaces before the GET function
+interface YouTubeVideoItem {
+  id: {
+    videoId: string;
+  };
+  snippet: {
+    title: string;
+  };
+}
+
 export async function GET(request: NextRequest) {
   try {
     // 1. Parse the query parameters from the request URL
@@ -30,7 +40,7 @@ export async function GET(request: NextRequest) {
 
     // 5. For each video, fetch stats (views & likes)
     const videosWithStats = await Promise.all(
-      videos.map(async (v) => {
+      videos.map(async (v: YouTubeVideoItem) => {
         const stats = await getVideoStats(v.id.videoId);
         return {
           title: v.snippet.title,
