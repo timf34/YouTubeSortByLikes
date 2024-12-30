@@ -78,8 +78,8 @@ export default function HomePage() {
           <div className="w-full h-full absolute inset-0 bg-gray-900 rounded-xl translate-y-2 translate-x-2"></div>
           <div className="bg-white rounded-xl border-[3px] border-gray-900 p-8 relative z-20">
             <p className="text-center text-gray-700 mb-6">
-              Quickly find the top-liked or highest like:view ratio videos from
-              any channel. Paste a YouTube channel URL below to get started!
+              Find the best quality videos from any channel! 
+              Paste a YouTube channel URL below to get started!
             </p>
             
             <div className="space-y-6">
@@ -97,30 +97,31 @@ export default function HomePage() {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="relative group">
+                <div className="relative group h-full">
                   <div className="w-full h-full rounded bg-gray-900 translate-y-1 translate-x-1 absolute inset-0"></div>
                   <button
                     onClick={() => fetchVideos("likes")}
-                    className="w-full bg-gray-100 text-gray-900 font-medium px-4 py-4 rounded
+                    className="w-full h-full bg-gray-100 text-gray-900 font-medium px-4 py-4 rounded
                              border-[3px] border-gray-900 relative z-10 group-hover:-translate-y-px
-                             group-hover:-translate-x-px transition-transform text-sm md:text-lg"
+                             group-hover:-translate-x-px transition-transform text-sm md:text-lg flex items-center justify-center"
                   >
                     Sort by Likes
                   </button>
                 </div>
-                <div className="relative group">
+                <div className="relative group h-full">
                   <div className="w-full h-full rounded bg-gray-900 translate-y-1 translate-x-1 absolute inset-0"></div>
                   <button
                     onClick={() => fetchVideos("ratio")}
-                    className="w-full bg-red-600 text-white font-medium px-4 py-4 rounded
+                    className="w-full h-full bg-red-600 text-white font-medium px-4 py-4 rounded
                              border-[3px] border-gray-900 relative z-10 group-hover:-translate-y-px
-                             group-hover:-translate-x-px transition-transform text-sm md:text-lg"
+                             group-hover:-translate-x-px transition-transform text-sm md:text-lg flex items-center justify-center"
                   >
                     Sort by Like:View Ratio
                   </button>
                 </div>
               </div>
             </div>
+
 
             {/* Loading or Error */}
             {loading && (
