@@ -1,9 +1,6 @@
 // src/app/api/videos/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-
-// We'll keep your helper functions at the bottom (unchanged).
-// The main difference is: we define `export async function GET(...)`
-// instead of `export default function handler(...)`.
+import { getChannelIdFromUrl } from '@/lib/getChannelId';
 
 // Add these interfaces before the GET function
 interface YouTubeVideoItem {
@@ -15,12 +12,10 @@ interface YouTubeVideoItem {
   };
 }
 
-// Add error type interface
 interface ApiError extends Error {
   status?: number;
 }
 
-// Add this interface near the top with the other interfaces
 interface YouTubeSearchResponse {
   items?: YouTubeVideoItem[];
   nextPageToken?: string;
@@ -54,14 +49,29 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 2. Extract channelId (or username) from the provided channelUrl
-    const channelIdOrName = extractChannelIdOrName(channelUrl);
-    if (!channelIdOrName) {
+    // 2. Extract channelId (or identifier) from the provided channelUrl
+    const identifier = getChannelIdFromUrl(channelUrl);
+    if (!identifier) {
       return NextResponse.json({ error: 'Could not parse channel URL' }, { status: 400 });
     }
 
-    // 3. If it's an @username, we need to resolve it to a channelId
-    const channelId = await getChannelId(channelIdOrName);
+    // 3. Resolve the channel ID based on the identifier type
+    let channelId: string;
+    
+    if (identifier.startsWith('UC')) {
+      // Direct channel ID
+      channelId = identifier;
+    } else if (identifier.startsWith('@')) {
+      // Handle format
+      const username = identifier.slice(1);
+      channelId = await resolveChannelIdFromUsername(username);
+    } else if (identifier.startsWith('c/')) {
+      // Custom URL format
+      const customUrl = identifier.slice(2);
+      channelId = await resolveChannelIdFromCustomUrl(customUrl);
+    } else {
+      return NextResponse.json({ error: 'Invalid channel identifier' }, { status: 400 });
+    }
 
     // 4. Fetch videos for that channel
     const videos = await getChannelVideos(channelId, maxVideos);
@@ -93,51 +103,96 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ data: sorted }, { status: 200 });
   } catch (err: unknown) {
     const error = err as ApiError;
-    console.error('API Error', error);
+    console.error('API Error:', error);
     return NextResponse.json(
       { error: error.message || 'Internal Server Error' },
-      { status: 500 }
+      { status: error.status || 500 }
     );
   }
 }
 
-// ----------------------------------------------------------------
-// Helper functions (same as your old code)
-// ----------------------------------------------------------------
-
-function extractChannelIdOrName(fullUrl: string): string | null {
-  try {
-    const url = new URL(fullUrl);
-
-    if (url.pathname.startsWith('/channel/')) {
-      return url.pathname.replace('/channel/', '');
-    } else if (url.pathname.startsWith('/@')) {
-      return url.pathname.replace('/@', '');
-    } else {
-      return null;
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (_error) {
-    return null;
+// Helper function to fetch from YouTube API
+async function fetchYouTubeAPI(url: string) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    const error = new Error(`YouTube API responded with status: ${response.status}`) as ApiError;
+    error.status = response.status;
+    throw error;
   }
+  return await response.json();
 }
 
-async function getChannelId(channelIdOrName: string): Promise<string> {
-  if (channelIdOrName.startsWith('UC')) {
-    return channelIdOrName;
+// Function to resolve channel ID from a username/handle
+async function resolveChannelIdFromUsername(username: string): Promise<string> {
+  // First try the forUsername endpoint
+  try {
+    const data = await fetchYouTubeAPI(
+      `https://www.googleapis.com/youtube/v3/channels?key=${process.env.YOUTUBE_API_KEY}&forUsername=${username}&part=id`
+    );
+    if (data.items && data.items.length > 0) {
+      return data.items[0].id;
+    }
+  } catch (error) {
+    console.log('forUsername lookup failed, trying search...');
   }
-  const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(
-    channelIdOrName
-  )}&type=channel&maxResults=1&key=${process.env.YOUTUBE_API_KEY}`;
 
-  const resp = await fetch(searchUrl);
-  const data = await resp.json();
+  // If that fails, try searching for the channel
+  return resolveChannelIdFromCustomUrl(username);
+}
 
-  if (data.items && data.items.length > 0) {
-    return data.items[0].id.channelId;
+// Function to resolve channel ID from a custom URL
+async function resolveChannelIdFromCustomUrl(customUrl: string): Promise<string> {
+  try {
+    // Search for the channel
+    const searchData = await fetchYouTubeAPI(
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(customUrl)}&type=channel&maxResults=5&key=${process.env.YOUTUBE_API_KEY}`
+    );
+
+    if (!searchData.items || searchData.items.length === 0) {
+      throw new Error('Channel not found');
+    }
+
+    // For each result, verify if it matches our custom URL
+    for (const item of searchData.items) {
+      const channelId = item.id.channelId;
+      
+      // Get the channel's custom URL
+      const channelData = await fetchYouTubeAPI(
+        `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${process.env.YOUTUBE_API_KEY}`
+      );
+
+      if (channelData.items && channelData.items.length > 0) {
+        const channel = channelData.items[0];
+        let channelCustomUrl = channel.snippet.customUrl;
+        
+        if (channelCustomUrl) {
+          // Remove leading '@' if present and convert to lower case (like in your old code)
+          channelCustomUrl = channelCustomUrl.replace(/^@/, '').toLowerCase();
+          const lowerCustomName = customUrl.toLowerCase();
+
+          if (channelCustomUrl === lowerCustomName) {
+            return channelId;
+          }
+        }
+      }
+    }
+
+    // If we haven't found a match, try one more time with the channel name
+    // This is because sometimes the custom URL might not match exactly
+    const channelId = searchData.items[0].id.channelId;
+    const channelData = await fetchYouTubeAPI(
+      `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${process.env.YOUTUBE_API_KEY}`
+    );
+
+    if (channelData.items && channelData.items.length > 0) {
+      return channelId;
+    }
+
+    throw new Error('Could not find matching channel');
+  } catch (error) {
+    console.error('Error resolving custom URL:', error);
+    throw new Error('Could not find matching channel');
   }
-
-  throw new Error('Could not find channel by username: ' + channelIdOrName);
 }
 
 async function getChannelVideos(channelId: string, maxVideos: number = 50) {
@@ -145,30 +200,23 @@ async function getChannelVideos(channelId: string, maxVideos: number = 50) {
   let nextPageToken: string | undefined = undefined;
   
   do {
-    const url: string = `https://www.googleapis.com/youtube/v3/search?channelId=${channelId}&part=snippet,id&type=video&maxResults=50&order=date&key=${process.env.YOUTUBE_API_KEY}${nextPageToken ? `&pageToken=${nextPageToken}` : ''}`;
-    const resp = await fetch(url);
-    const data: YouTubeSearchResponse = await resp.json();
+    const url = `https://www.googleapis.com/youtube/v3/search?channelId=${channelId}&part=snippet,id&type=video&maxResults=50&order=date&key=${process.env.YOUTUBE_API_KEY}${nextPageToken ? `&pageToken=${nextPageToken}` : ''}`;
+    const data = await fetchYouTubeAPI(url);
 
     if (!data.items) break;
     
     allVideos = [...allVideos, ...data.items];
     nextPageToken = data.nextPageToken;
     
-    console.log(`Fetched ${allVideos.length} videos so far from channel`);
-    
-    // Use the passed maxVideos parameter instead of hardcoded 200
     if (allVideos.length >= maxVideos) break;
     
   } while (nextPageToken);
 
-  console.log(`Finished fetching ${allVideos.length} total videos from channel`);
   return allVideos;
 }
 
 async function getVideoStats(videoId: string) {
   const url = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=statistics&key=${process.env.YOUTUBE_API_KEY}`;
-  const resp = await fetch(url);
-  const data = await resp.json();
-  const stats = data.items?.[0]?.statistics || {};
-  return stats;
+  const data = await fetchYouTubeAPI(url);
+  return data.items?.[0]?.statistics || {};
 }
