@@ -1,11 +1,20 @@
 # YouTubeSortByLikes
 
-_Will fill this out later_
+<p align="center"><i>Find the best quality videos from any channel! Like:View ratio is the best signal.</i></p>
 
-## TODO:
+<p align="center">
+  <img src="image.png" width="700" alt="Screenshot of YouTube Sort By Likes">
+</p>
 
-- [ ] Add analytics!
-- [ ] Add the ability to request more videos to sort through!
-- [ ] Update this README -> add a screenshot of it!
-- [ ] Get a .com domain? Yeah definitely! 
-- [ ] Make sure my G o o gl e pr oj [ec] a @Asdf p @Asdf i k 123 e 123 y has a limit set up on it! Or is not connected to a functioning card! 
+
+## Self Hosting 
+
+Create a .env file in the root of the project and add the following:
+
+```
+YOUTUBE_API_KEY=get-your-own-key-from-google-cloud-console
+```
+
+Then I recommend hosting with Vercel, it'll take care of everything for you.
+
+
