@@ -7,14 +7,13 @@
 </p>
 
 
-## Note on the YouTube API Quota Limitations
+## API Usage
 
-⚠️ **YouTube API Quota Limitations**: This project uses the YouTube Data API which has a daily quota limit of 10,000 units. This is a hard limit that's difficult to increase - have to go through an audit with Google and submit documents, etc.
+This project uses two APIs to fetch YouTube data:
 
-Will look into alternative approaches to getting video metadata for a channel:
+1. **Invidious API (Primary)**: The app first attempts to use the Invidious API, which has no quota limitations. Multiple Invidious instances are supported with automatic fallback.
 
-- Individuous API looks promising:https://docs.invidious.io/api/channels_endpoint/
-- Check out if yt-dlp can be used... 
+2. **YouTube Data API (Fallback)**: If Invidious API fails, the app falls back to the YouTube Data API which has a daily quota limit of 10,000 units. This is a hard limit that's difficult to increase - have to go through an audit with Google and submit documents, etc.
 
 ## To run locally 
 
@@ -31,7 +30,7 @@ npm install
 
 3. Create a `.env.local` file in the root directory:
 ```env
-YOUTUBE_API_KEY=your_api_key_here
+YOUTUBE_API_KEY=your_api_key_here  # Optional - only needed as fallback if Invidious fails
 ```
 
 4. Run the development server:
