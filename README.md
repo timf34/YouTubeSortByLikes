@@ -3,7 +3,7 @@
 <p align="center"><i>Find the best quality videos from any channel! Like:View ratio is the best signal.</i></p>
 
 <p align="center">
-  <img src="image.png" width="700" alt="Screenshot of YouTube Sort By Likes">
+  <img src="assets/image.png" width="700" alt="Screenshot of YouTube Sort By Likes">
 </p>
 
 
