@@ -47,7 +47,7 @@ export function getChannelIdFromUrl(urlString: string): string | null {
 
 		// Fallback
 		return null;
-	} catch (_err) {
+	} catch {
 		return null;
 	}
 }

@@ -16,11 +16,6 @@ interface ApiError extends Error {
   status?: number;
 }
 
-interface YouTubeSearchResponse {
-  items?: YouTubeVideoItem[];
-  nextPageToken?: string;
-}
-
 export async function GET(request: NextRequest) {
   try {
     // Check for API key first
@@ -132,7 +127,7 @@ async function resolveChannelIdFromUsername(username: string): Promise<string> {
     if (data.items && data.items.length > 0) {
       return data.items[0].id;
     }
-  } catch (error) {
+  } catch {
     console.log('forUsername lookup failed, trying search...');
   }
 
