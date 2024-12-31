@@ -26,7 +26,7 @@ export default function HomePage() {
 
   const getSliderBackground = (value: number) => {
     const percentage = ((value - 50) / (350 - 50)) * 100;
-    return `linear-gradient(to right, #FE4A60 ${percentage}%, #FAFAFA ${percentage}%)`;
+    return `linear-gradient(to right, #ef4444  ${percentage}%, #FAFAFA ${percentage}%)`;
   };
 
   async function fetchVideos(sortMode: "likes" | "ratio") {
@@ -181,10 +181,10 @@ export default function HomePage() {
                 <table className="w-full border-collapse">
                   <thead>
                     <tr className="border-b-[3px] border-red-600">
-                      <th className="px-4 py-3 text-left font-bold text-gray-900">Video Title</th>
-                      <th className="px-4 py-3 text-left font-bold text-gray-900">Likes</th>
-                      <th className="px-4 py-3 text-left font-bold text-gray-900">Views</th>
-                      <th className="px-4 py-3 text-left font-bold text-gray-900">Ratio (%)</th>
+                      <th className="px-4 py-3 text-left font-bold text-gray-900 text-xs sm:text-base">Video Title</th>
+                      <th className="px-4 py-3 text-left font-bold text-gray-900 text-xs sm:text-base">Likes</th>
+                      <th className="px-4 py-3 text-left font-bold text-gray-900 text-xs sm:text-base">Views</th>
+                      <th className="px-4 py-3 text-left font-bold text-gray-900 text-xs sm:text-base">Ratio (%)</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -200,14 +200,14 @@ export default function HomePage() {
                               href={`https://www.youtube.com/watch?v=${v.videoId}`}
                               target="_blank"
                               rel="noreferrer"
-                              className="text-gray-900 hover:text-red-500 underline underline-offset-2"
+                              className="text-gray-900 hover:text-red-500 underline underline-offset-2 text-xs sm:text-base"
                             >
                               {decodeHtmlEntities(v.title)}
                             </a>
                           </td>
-                          <td className="px-4 py-3 font-medium text-gray-900">{v.likes.toLocaleString()}</td>
-                          <td className="px-4 py-3 text-gray-900">{v.views.toLocaleString()}</td>
-                          <td className="px-4 py-3 font-medium text-gray-900">{ratio}%</td>
+                          <td className="px-4 py-3 font-medium text-gray-900 text-xs sm:text-base">{v.likes.toLocaleString()}</td>
+                          <td className="px-4 py-3 text-gray-900 text-xs sm:text-base">{v.views.toLocaleString()}</td>
+                          <td className="px-4 py-3 font-medium text-gray-900 text-xs sm:text-base">{ratio}%</td>
                         </tr>
                       );
                     })}
