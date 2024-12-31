@@ -1,4 +1,4 @@
-# YouTubeSortByLikes
+# YouTube Sort By Likes
 
 <p align="center"><i>Find the best quality videos from any channel! Like:View ratio is the best signal.</i></p>
 
@@ -7,14 +7,41 @@
 </p>
 
 
-## Self Hosting 
+## Note on the YouTube API Quota Limitations
 
-Create a .env file in the root of the project and add the following:
+⚠️ **YouTube API Quota Limitations**: This project uses the YouTube Data API which has a daily quota limit of 10,000 units. This is a hard limit that's difficult to increase - have to go through an audit with Google and submit documents, etc.
 
+Will look into alternative approaches to getting video metadata for a channel:
+
+- Individuous API looks promising:https://docs.invidious.io/api/channels_endpoint/
+- Check out if yt-dlp can be used... 
+
+## To run locally 
+
+1. Clone the repository:
+```bash
+git clone https://github.com/timf34/YouTubeSortByLikes.git
+cd YouTubeSortByLikes
 ```
-YOUTUBE_API_KEY=get-your-own-key-from-google-cloud-console
+
+2. Install dependencies:
+```bash
+npm install
 ```
 
-Then I recommend hosting with Vercel, it'll take care of everything for you.
+3. Create a `.env.local` file in the root directory:
+```env
+YOUTUBE_API_KEY=your_api_key_here
+```
+
+4. Run the development server:
+```bash
+npm run dev
+```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 
 
