@@ -181,10 +181,10 @@ export default function HomePage() {
                 <table className="w-full border-collapse">
                   <thead>
                     <tr className="border-b-[3px] border-red-600">
-                      <th className="px-4 py-3 text-left font-bold text-gray-900 text-xs sm:text-base">Video Title</th>
-                      <th className="px-4 py-3 text-left font-bold text-gray-900 text-xs sm:text-base">Likes</th>
-                      <th className="px-4 py-3 text-left font-bold text-gray-900 text-xs sm:text-base">Views</th>
-                      <th className="px-4 py-3 text-left font-bold text-gray-900 text-xs sm:text-base">Ratio (%)</th>
+                      <th className="px-2 sm:px-4 py-3 text-left font-bold text-gray-900 text-xs sm:text-base">Video Title</th>
+                      <th className="px-2 sm:px-4 py-3 text-left font-bold text-gray-900 text-xs sm:text-base">Likes</th>
+                      <th className="px-2 sm:px-4 py-3 text-left font-bold text-gray-900 text-xs sm:text-base">Views</th>
+                      <th className="px-2 sm:px-4 py-3 text-left font-bold text-gray-900 text-xs sm:text-base">Ratio (%)</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -195,7 +195,7 @@ export default function HomePage() {
                           key={idx}
                           className="border-b border-gray-200 last:border-b-0 hover:bg-gray-50 transition-colors"
                         >
-                          <td className="px-4 py-3">
+                          <td className="px-2 sm:px-4 py-3">
                             <a
                               href={`https://www.youtube.com/watch?v=${v.videoId}`}
                               target="_blank"
@@ -205,9 +205,9 @@ export default function HomePage() {
                               {decodeHtmlEntities(v.title)}
                             </a>
                           </td>
-                          <td className="px-4 py-3 font-medium text-gray-900 text-xs sm:text-base">{v.likes.toLocaleString()}</td>
-                          <td className="px-4 py-3 text-gray-900 text-xs sm:text-base">{v.views.toLocaleString()}</td>
-                          <td className="px-4 py-3 font-medium text-gray-900 text-xs sm:text-base">{ratio}%</td>
+                          <td className="px-2 sm:px-4 py-3 font-medium text-gray-900 text-xs sm:text-base">{v.likes.toLocaleString()}</td>
+                          <td className="px-2 sm:px-4 py-3 text-gray-900 text-xs sm:text-base">{v.views.toLocaleString()}</td>
+                          <td className="px-2 sm:px-4 py-3 font-medium text-gray-900 text-xs sm:text-base">{ratio}%</td>
                         </tr>
                       );
                     })}
