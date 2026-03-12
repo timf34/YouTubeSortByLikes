@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { decodeHtmlEntities } from "@/lib/utils";
 
 /**
@@ -23,6 +23,22 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [maxVideos, setMaxVideos] = useState(50);
+  const [starCount, setStarCount] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("https://api.github.com/repos/timf34/YouTubeSortByLikes")
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch");
+        return res.json();
+      })
+      .then((data) => {
+        const count = data.stargazers_count;
+        setStarCount(count >= 1000 ? `${(count / 1000).toFixed(1)}k` : String(count));
+      })
+      .catch(() => {
+        // Silently fail — just don't show the star count
+      });
+  }, []);
 
   const getSliderBackground = (value: number) => {
     const percentage = ((value - 50) / (350 - 50)) * 100;
@@ -64,17 +80,27 @@ export default function HomePage() {
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900]">
             YouTube Sort By Likes
           </h1>
-          <a
-            href="https://github.com/timf34/YouTubeSortByLikes"
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center space-x-2 text-gray-900 hover:-translate-y-px transition-transform"
-          >
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-            </svg>
-            <span className="font-medium hidden sm:inline">View on GitHub</span>
-          </a>
+          <div className="flex items-center gap-2">
+            <a
+              href="https://github.com/timf34/YouTubeSortByLikes"
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center space-x-2 text-gray-900 hover:-translate-y-px transition-transform"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+              </svg>
+              <span className="font-medium hidden sm:inline">View on GitHub</span>
+            </a>
+            {starCount !== null && (
+              <div className="flex items-center text-sm text-gray-600 select-none">
+                <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                </svg>
+                {starCount}
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
@@ -89,7 +115,7 @@ export default function HomePage() {
               Paste a YouTube channel URL below to get started!
             </p>
             
-            <div className="space-y-6">
+            <form onSubmit={(e) => { e.preventDefault(); fetchVideos("likes"); }} className="space-y-6">
               <div className="relative">
                 <div className="w-full h-full rounded bg-gray-900 translate-y-1 translate-x-1 absolute inset-0"></div>
                 <input
@@ -119,12 +145,12 @@ export default function HomePage() {
                     value={maxVideos}
                     onChange={(e) => setMaxVideos(Number(e.target.value))}
                     style={{ background: getSliderBackground(maxVideos) }}
-                    className="w-full h-3 appearance-none border-[3px] border-gray-900 rounded-sm 
+                    className="w-full h-3 appearance-none border-[3px] border-gray-900 rounded-sm
                              focus:outline-none
-                             [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-7 
-                             [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:bg-red-500 
-                             [&::-webkit-slider-thumb]:rounded-sm [&::-webkit-slider-thumb]:cursor-pointer 
-                             [&::-webkit-slider-thumb]:border-solid [&::-webkit-slider-thumb]:border-[3px] 
+                             [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-7
+                             [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:bg-red-500
+                             [&::-webkit-slider-thumb]:rounded-sm [&::-webkit-slider-thumb]:cursor-pointer
+                             [&::-webkit-slider-thumb]:border-solid [&::-webkit-slider-thumb]:border-[3px]
                              [&::-webkit-slider-thumb]:border-gray-900 [&::-webkit-slider-thumb]:shadow-[2px_2px_0_#000]"
                   />
                 </div>
@@ -134,7 +160,7 @@ export default function HomePage() {
                 <div className="relative group h-full">
                   <div className="w-full h-full rounded bg-gray-900 translate-y-1 translate-x-1 absolute inset-0"></div>
                   <button
-                    onClick={() => fetchVideos("likes")}
+                    type="submit"
                     className="w-full h-full bg-gray-100 text-gray-900 font-medium px-4 py-4 rounded
                              border-[3px] border-gray-900 relative z-10 group-hover:-translate-y-px
                              group-hover:-translate-x-px transition-transform text-sm md:text-lg flex items-center justify-center"
@@ -145,6 +171,7 @@ export default function HomePage() {
                 <div className="relative group h-full">
                   <div className="w-full h-full rounded bg-gray-900 translate-y-1 translate-x-1 absolute inset-0"></div>
                   <button
+                    type="button"
                     onClick={() => fetchVideos("ratio")}
                     className="w-full h-full bg-red-600 text-white font-medium px-4 py-4 rounded
                              border-[3px] border-gray-900 relative z-10 group-hover:-translate-y-px
@@ -154,7 +181,7 @@ export default function HomePage() {
                   </button>
                 </div>
               </div>
-            </div>
+            </form>
 
 
             {/* Loading or Error */}
